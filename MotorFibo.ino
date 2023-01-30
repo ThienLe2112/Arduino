@@ -19,7 +19,6 @@ void chayr();
 void chayl();
 void quayl(int nangluongl);
 void quayr(int nangluongr);
-void quayc(int nangluongc);
 int pid(int loi, int kp, int ki, int kd) {
   int dloi ;
   static int  loitr = 0, iloi = 0;
@@ -132,28 +131,6 @@ void quayr(int nangluongr) {
   if (nangluongr < 0) {
     analogWrite(in1, -nangluongr);
     analogWrite(in2, 0);
-  }
-}
-void quayc(int nangluongc) {
-  if (nangluongc >= 150) {
-    nangluongc = 150;
-  }
-  if (nangluongc <= -150) {
-    nangluongc = -150;
-  }
-  if (nangluongc > 0) {
-    analogWrite(in1, 0);
-    analogWrite(in2, nangluongc);
-    analogWrite(in3, 0);
-    analogWrite(in4, nangluongc);
-
-  }
-  if (nangluongc < 0) {
-    analogWrite(in1, -nangluongc);
-    analogWrite(in2, 0);
-    analogWrite(in3, -nangluongc);
-    analogWrite(in4, 0);
-
   }
 }
 void dithang(int vitril, int vitrir) {
