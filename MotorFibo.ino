@@ -1,4 +1,3 @@
-#include <Arduino_FreeRTOS.h>
 #include<string.h>
 // vitrimm=120 di dc 30cm
 // vitrimm =75 xoay goc 90 do
@@ -7,15 +6,86 @@ int vitril = 0, vitrir = 0, vitrimml = 0, vitrimmr = 0, loil, loir;
 #define in2 6
 #define in3 9
 #define in4 10
+int ss0;
 int ss1;
 int ss2;
 int ss3;
 int ss4;
-int ss0;
 #define dl1 8
 #define dl2 13
 #define dl3 4
 #define dl4 7
+void chayr();
+void chayl();
+void quayl(int nangluongl);
+void quayr(int nangluongr);
+void quayc(int nangluongc);
+int pid(int loi, int kp, int ki, int kd) {
+  int dloi ;
+  static int  loitr = 0, iloi = 0;
+  long int temp;
+  dloi = loi - loitr;
+  iloi += loi;
+  if (iloi >= 100) {
+    iloi = 100;
+  }
+  if (iloi <= -100) {
+    iloi = -100;
+  }
+  loitr = loi;
+  temp = kp * loi + ki * iloi + kd * dloi;
+  if (temp >= 255) {
+    temp = 255;
+  }
+  if (temp <= -255) {
+    temp = -255;
+  }
+  return temp;
+}
+void dithang(int vitril, int vitrir);
+void xoay(int vitril, int vitrir, const char* xoay);
+void setup() {
+  attachInterrupt(1, chayr, RISING);
+  attachInterrupt(0, chayl, RISING);
+  Serial.begin(9600);
+}
+
+void loop() {
+  Serial.print("Vi tri left " ); Serial.println(vitril);
+  Serial.print("Vi tri right " ); Serial.println(vitrir);
+  ss0 = analogRead(A0);// sensor trái ngoài cùng
+  ss1 = analogRead(A1);// sensor chéo trái
+  ss2 = analogRead(A2);// sensor giữa
+  ss3 = analogRead(A3);// sensor chéo phải
+  ss4 = analogRead(A4);// sensor phải ngoài cùng
+  if ( ss3 > 100) //khong co vat can
+  {
+
+    xoay(vitril, vitrir, "phai");
+    dithang(vitril, vitrir);
+  }
+  else if (ss2 > 100) {
+    dithang(vitril, vitrir);
+  }
+  else {
+    xoay(vitril, vitrir, "trai");
+    dithang(vitril, vitrir);
+  }
+  if (ss3 > 100) {
+    int vitrixoayl = 75 + vitril;
+    int vitrixoayr = -75 + vitrir;
+    while (loil > -10 || loil < 10) {
+      attachInterrupt(1, chayr, RISING);
+      attachInterrupt(0, chayl, RISING);
+      Serial.print("Vi tri left " ); Serial.println(vitril);
+      Serial.print("Vi tri right " ); Serial.println(vitrir);
+      loil = vitrixoayl - vitril;
+      loir = vitrixoayr - vitrir;
+      quayl(pid(loil, 3, 0, 1));
+      quayr(pid(loir, 3, 0, 1));
+    }
+  }
+}
 void chayr() {
   if ( digitalRead(12) == 1) {
     vitrir--;
@@ -86,80 +156,9 @@ void quayc(int nangluongc) {
 
   }
 }
-void xoay(int goc) {
-  switch (goc) {
-    case 90: {
-        vitrimml += 75;
-        vitrimmr -= 75;
-        quayl(pid(loil, 3, 0, 1));
-        quayr(pid(loir, 3, 0, 1));
-        break;
-      }
-
-    case -90: {
-        vitrimml -= 75;
-        vitrimmr += 75;
-        quayl(pid(loil, 3, 0, 1));
-        quayr(pid(loir, 3, 0, 1));
-        break;
-      }
-
-
-
-  }
-}
-void stopmotor() {
-  analogWrite(in1, 0);
-  analogWrite(in2, 0);
-  analogWrite(in3, 0);
-  analogWrite(in4, 0);
-}
-int pid(int loi, int kp, int ki, int kd) {
-  int dloi ;
-  static int  loitr = 0, iloi = 0;
-  long int temp;
-  dloi = loi - loitr;
-  iloi += loi;
-  if (iloi >= 100) {
-    iloi = 100;
-  }
-  if (iloi <= -100) {
-    iloi = -100;
-  }
-  loitr = loi;
-  temp = kp * loi + ki * iloi + kd * dloi;
-  if (temp >= 255) {
-    temp = 255;
-  }
-  if (temp <= -255) {
-    temp = -255;
-  }
-  return temp;
-}
-void dithang(int nangluong) {
-  vitrimml = 120;
-  loil = vitrimml - vitril;
-  vitrimmr = 120;
-  loir = vitrimmr - vitrir;
-  quayl(pid(loil, 3, 0, 1));
-  quayr(pid(loir, 3, 0, 1));
-}
-
-void setup() {
-  attachInterrupt(1, chayr, RISING);
-  attachInterrupt(0, chayl, RISING);
-  Serial.begin(9600);
-}
-
-void loop() {
-  Serial.print("Vi tri left " ); Serial.println(vitril);
-  Serial.print("Vi tri right " ); Serial.println(vitrir);
-  ss0 = analogRead(A0);
-  ss1 = analogRead(A1);
-  ss2 = analogRead(A2);
-  ss3 = analogRead(A3);
-  ss4 = analogRead(A4);
-  vitrimml = 120; vitrimmr = 120;
+void dithang(int vitril, int vitrir) {
+  int vitrimml = 120; int vitrimmr = 120; // 120 để chạy được 30cm
+  int loil, loir;
   loil = vitrimml - vitril;
   loir = vitrimmr - vitrir;
   while (loil < -5 || loil > 5) {
@@ -173,9 +172,14 @@ void loop() {
     quayl(pid(loil, 3, 0, 1));
     quayr(pid(loir, 3, 0, 1));
   }
-  if (ss3 > 100) {
+}
+void xoay(int vitril, int vitrir, const char* ben) {
+  if (ben == 'phai') {
     int vitrixoayl = 75 + vitril;
     int vitrixoayr = -75 + vitrir;
+    int loil, loir;
+    loil = vitrixoayl - vitril;
+    loir = vitrixoayr - vitrir;
     while (loil > -10 || loil < 10) {
       attachInterrupt(1, chayr, RISING);
       attachInterrupt(0, chayl, RISING);
@@ -187,23 +191,22 @@ void loop() {
       quayr(pid(loir, 3, 0, 1));
     }
   }
-  //  Serial.println("SS0 " + String(ss1));
-  //  Serial.println("SS1 " + String(ss2));
-  //  Serial.println("SS2 " + String(ss3));
-  //  Serial.println("SS3 " + String(ss4));
-  //  Serial.println("SS4 " + String(ss5));
-  //  if (ss4 > 50) {
-  //    stopmotor();
-  //    do {
-  //
-  //      ss1 = analogRead(A0);
-  //      Serial.println("Quay phai");
-  //    } while (ss4 > 50);
-  //    Serial.println("Dung lai");
-  //    stopmotor();
-  //  }
-  //  else if (ss2 < 50) {
-  //    do
-  //    }
+  else if ( ben == 'trai') {
+    int vitrixoayl = -75 + vitril;
+    int vitrixoayr = +75 + vitrir;
+    int loil, loir;
+    loil = vitrixoayl - vitril;
+    loir = vitrixoayr - vitrir;
+    while (loir > -10 || loir < 10) {
+      attachInterrupt(1, chayr, RISING);
+      attachInterrupt(0, chayl, RISING);
+      Serial.print("Vi tri left " ); Serial.println(vitril);
+      Serial.print("Vi tri right " ); Serial.println(vitrir);
+      loil = vitrixoayl - vitril;
+      loir = vitrixoayr - vitrir;
+      quayl(pid(loil, 3, 0, 1));
+      quayr(pid(loir, 3, 0, 1));
+    }
+  }
 
 }
