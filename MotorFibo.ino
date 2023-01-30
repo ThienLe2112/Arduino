@@ -151,7 +151,7 @@ void dithang(int vitril, int vitrir) {
   }
 }
 void xoay(int vitril, int vitrir, const char* ben) {
-  if (ben == 'phai') {
+  if (ben == "phai") {
     int vitrixoayl = 75 + vitril;
     int vitrixoayr = -75 + vitrir;
     int loil, loir;
@@ -168,7 +168,7 @@ void xoay(int vitril, int vitrir, const char* ben) {
       quayr(pid(loir, 3, 0, 1));
     }
   }
-  else if ( ben == 'trai') {
+  else if ( ben == "trai") {
     int vitrixoayl = -75 + vitril;
     int vitrixoayr = +75 + vitrir;
     int loil, loir;
