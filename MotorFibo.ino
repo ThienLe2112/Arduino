@@ -70,20 +70,6 @@ void loop() {
     xoay(vitril, vitrir, "trai");
     dithang(vitril, vitrir);
   }
-  if (ss3 > 100) {
-    int vitrixoayl = 75 + vitril;
-    int vitrixoayr = -75 + vitrir;
-    while (loil > -10 || loil < 10) {
-      attachInterrupt(1, chayr, RISING);
-      attachInterrupt(0, chayl, RISING);
-      Serial.print("Vi tri left " ); Serial.println(vitril);
-      Serial.print("Vi tri right " ); Serial.println(vitrir);
-      loil = vitrixoayl - vitril;
-      loir = vitrixoayr - vitrir;
-      quayl(pid(loil, 3, 0, 1));
-      quayr(pid(loir, 3, 0, 1));
-    }
-  }
 }
 void chayr() {
   if ( digitalRead(12) == 1) {
