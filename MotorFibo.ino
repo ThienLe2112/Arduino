@@ -15,8 +15,22 @@ int ss4;
 #define dl2 13
 #define dl3 4
 #define dl4 7
-void chayr();
-void chayl();
+void chayr() {
+  if ( digitalRead(12) == 1) {
+    vitrir--;
+  }
+  else
+    vitrir++;
+
+}
+void chayl() {
+  if ( digitalRead(11) == 1) {
+    vitril++;
+  }
+  else
+    vitril--;
+
+}
 void quayl(int nangluongl);
 void quayr(int nangluongr);
 int pid(int loi, int kp, int ki, int kd) {
@@ -43,6 +57,12 @@ int pid(int loi, int kp, int ki, int kd) {
 }
 void dithang(int vitril, int vitrir);
 void xoay(int vitril, int vitrir, const char* xoay);
+void motorstop() {
+  digitalWrite(in1, 0);
+  digitalWrite(in2, 0);
+  digitalWrite(in3, 0);
+  digitalWrite(in4, 0);
+}
 void setup() {
   attachInterrupt(1, chayr, RISING);
   attachInterrupt(0, chayl, RISING);
@@ -57,36 +77,25 @@ void loop() {
   ss2 = analogRead(A2);// sensor giữa
   ss3 = analogRead(A3);// sensor chéo phải
   ss4 = analogRead(A4);// sensor phải ngoài cùng
-  if ( ss3 > 100) //khong co vat can
-  {
-
-    xoay(vitril, vitrir, "phai");
-    dithang(vitril, vitrir);
-  }
-  else if (ss2 > 100) {
-    dithang(vitril, vitrir);
-  }
-  else {
-    xoay(vitril, vitrir, "trai");
-    dithang(vitril, vitrir);
-  }
+  dithang(vitril, vitrir);
+  //  if ( ss3 > 100) //khong co vat can
+  //  {
+  //
+  //    xoay(vitril, vitrir, "phai");
+  //    dithang(vitril, vitrir);
+  //  }
+  //  else if (ss2 > 100) {
+  //    dithang(vitril, vitrir);
+  //  }
+  //  else {
+  //    xoay(vitril, vitrir, "trai");
+  //    dithang(vitril, vitrir);
+  //  }
+  delay(1000);
+  motorstop();
+  delay(1000);
 }
-void chayr() {
-  if ( digitalRead(12) == 1) {
-    vitrir--;
-  }
-  else
-    vitrir++;
 
-}
-void chayl() {
-  if ( digitalRead(11) == 1) {
-    vitril++;
-  }
-  else
-    vitril--;
-
-}
 void quayl(int nangluongl) {
   if (nangluongl >= 150) {
     nangluongl = 150;
@@ -95,12 +104,12 @@ void quayl(int nangluongl) {
     nangluongl = -150;
   }
   if (nangluongl > 0) {
-    analogWrite(in3, 0);
-    analogWrite(in4, nangluongl);
+    analogWrite(in3, nangluongl);
+    analogWrite(in4, 0);
   }
   if (nangluongl < 0) {
-    analogWrite(in3, -nangluongl);
-    analogWrite(in4, 0);
+    analogWrite(in3, 0);
+    analogWrite(in4, -nangluongl);
   }
 }
 void quayr(int nangluongr) {
@@ -111,15 +120,15 @@ void quayr(int nangluongr) {
     nangluongr = -150;
   }
   if (nangluongr > 0) {
-    analogWrite(in1, 0);
-    analogWrite(in2, nangluongr);
-  }
-  if (nangluongr < 0) {
-    analogWrite(in1, -nangluongr);
+    analogWrite(in1, nangluongr);
     analogWrite(in2, 0);
   }
+  if (nangluongr < 0) {
+    analogWrite(in1, 0);
+    analogWrite(in2, -nangluongr);
+  }
 }
-void dithang(int vitril, int vitrir) {
+void dithang(int vitril, int vitrir, ) {
   int vitrimml = 120; int vitrimmr = 120; // 120 để chạy được 30cm
   int loil, loir;
   loil = vitrimml - vitril;
@@ -171,5 +180,4 @@ void xoay(int vitril, int vitrir, const char* ben) {
       quayr(pid(loir, 3, 0, 1));
     }
   }
-
 }
