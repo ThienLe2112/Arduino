@@ -77,22 +77,24 @@ void loop() {
   ss2 = analogRead(A2);// sensor giữa
   ss3 = analogRead(A3);// sensor chéo phải
   ss4 = analogRead(A4);// sensor phải ngoài cùng
-  dithang();
-  //  if ( ss3 > 100) //khong co vat can
-  //  {
-  //
-  //    xoay(vitril, vitrir, "phai");
-  //    dithang(vitril, vitrir);
-  //  }
-  //  else if (ss2 > 100) {
-  //    dithang(vitril, vitrir);
-  //  }
-  //  else {
-  //    xoay(vitril, vitrir, "trai");
-  //    dithang(vitril, vitrir);
-  //  }
-  delay(1000);
-  motorstop();
+  if ( ss3 > 100) //khong co vat can
+  {
+    xoay("phai");
+    motorstop();
+    dithang();
+    motorstop();
+
+  }
+  else if (ss2 > 100) {
+    dithang();
+    motorstop();
+  }
+  else {
+    xoay("trai");
+    motorstop();
+    dithang();
+    motorstop();
+  }
   delay(1000);
 }
 
@@ -128,30 +130,49 @@ void quayr(int nangluongr) {
     analogWrite(in2, -nangluongr);
   }
 }
+void quayc(int nangluongl) {
+  if (nangluongl >= 150) {
+    nangluongl = 150;
+  }
+  if (nangluongl <= -150) {
+    nangluongl = -150;
+  }
+  if (nangluongl > 0) {
+    analogWrite(in1, 0);
+    analogWrite(in2, nangluongl);
+    analogWrite(in3, nangluongl);
+    analogWrite(in4, 0);
+  }
+  if (nangluongl < 0) {
+    analogWrite(in1, -nangluongl);
+    analogWrite(in2, 0);
+    analogWrite(in3, 0);
+    analogWrite(in4, -nangluongl);
+  }
+}
 void dithang() {
-  int vitrimml = 120+vitril; int vitrimmr = 120+vitrir; // 120 để chạy được 30cm
+  int vitrimml = 120 + vitril; int vitrimmr = 120 + vitrir; // 120 để chạy được 30cm
   int loil, loir;
   loil = vitrimml - vitril;
   loir = vitrimmr - vitrir;
-  while (loil < -5 || loil > 5) {
+  for (; loil < -5 || loil > 5;) {
     attachInterrupt(1, chayr, RISING);
     attachInterrupt(0, chayl, RISING);
     Serial.print("Vi tri left " ); Serial.println(vitril);
     Serial.print("Vi tri right " ); Serial.println(vitrir);
     loil = vitrimml - vitril;
     loir = vitrimmr - vitrir;
-    quayl(pid(loil, 3, 0, 1));
-    quayr(pid(loir, 3, 0, 1));
+    quayc(pid(loil, 3, 0, 1));
   }
 }
-void xoay(int vitril, int vitrir, const char* ben) {
+void xoay(const char* ben) {
   if (ben == "phai") {
     int vitrixoayl = 75 + vitril;
     int vitrixoayr = -75 + vitrir;
     int loil, loir;
     loil = vitrixoayl - vitril;
     loir = vitrixoayr - vitrir;
-    while (loil > -10 || loil < 10) {
+    for (; loil > -10 || loil < 10;) {
       attachInterrupt(1, chayr, RISING);
       attachInterrupt(0, chayl, RISING);
       Serial.print("Vi tri left " ); Serial.println(vitril);
@@ -168,7 +189,7 @@ void xoay(int vitril, int vitrir, const char* ben) {
     int loil, loir;
     loil = vitrixoayl - vitril;
     loir = vitrixoayr - vitrir;
-    while (loir > -10 || loir < 10) {
+    for (; loir > -10 || loir < 10;) {
       attachInterrupt(1, chayr, RISING);
       attachInterrupt(0, chayl, RISING);
       Serial.print("Vi tri left " ); Serial.println(vitril);
