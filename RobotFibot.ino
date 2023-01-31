@@ -11,12 +11,12 @@ int ss1;
 int ss2;
 int ss3;
 int ss4;
-#define dl1 8
+#define dl1 12
 #define dl2 13
 #define dl3 4
-#define dl4 7
+#define dl4 11
 void chayr() {
-  if ( digitalRead(12) == 1) {
+  if ( digitalRead(8) == 1) {
     vitrir--;
   }
   else
@@ -24,7 +24,7 @@ void chayr() {
 
 }
 void chayl() {
-  if ( digitalRead(11) == 1) {
+  if ( digitalRead(7) == 1) {
     vitril++;
   }
   else
